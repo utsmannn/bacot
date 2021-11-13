@@ -21,7 +21,7 @@
 
 ---
 
-This project tested on Macos and Windows.
+This project tested on Macos.
 
 ### Setup
 Install with npm
