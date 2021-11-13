@@ -24,7 +24,7 @@
 This project tested on Macos and Windows.
 
 ### Setup
-
+Install with npm
 ```
 npm install -g android-dpi
 ```
