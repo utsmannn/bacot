@@ -1,0 +1,29 @@
+{
+  "name": "android-dpi",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "clean": "npm uninstall -g android-dpi && npx rimraf dist",
+    "build": "npm run clean && tsc -p . && npm link",
+    "run": "npm run build && android-dpi"
+  },
+  "bin": {
+    "android-dpi": "dist/app.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^16.11.7",
+    "@types/sharp": "^0.29.3",
+    "@types/yargs": "^17.0.5",
+    "rimraf": "^3.0.2",
+    "typescript": "^4.4.4"
+  },
+  "dependencies": {
+    "cwebp-bin": "^7.0.1",
+    "sharp": "^0.29.2"
+  }
+}
