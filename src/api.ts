@@ -1,12 +1,15 @@
 
+import chalk from "chalk"
+import { exec } from "child_process"
 import { existsSync, fsyncSync, mkdirSync } from "fs"
 import path from "path"
 import sharp, { Sharp } from "sharp"
-import { percetage } from "./utils"
+import { artTitle, delay, percetage } from "./utils"
 
 export interface Api {
     anuan(): string
-    simpleDpi(name: string): void
+    simpleDpi(dirOutput: string, name: string): void
+    startConvert(names: string[]): void
 }
 
 enum DpiPercentage {
@@ -35,8 +38,8 @@ function dpi(dpiPercent: DpiPercentage): number {
     }
 }
 
-function dpiFolder(dpiPercent: DpiPercentage): string {
-    const name = "output/drawable"
+function dpiFolder(dpiPercent: DpiPercentage, dirChild: string): string {
+    const name = "output-" + dirChild +  "/drawable"
     switch (dpiPercent) {
         case DpiPercentage.LDPI: return name + "-ldpi"
         case DpiPercentage.MDPI: return name + "-mdpi"
@@ -47,8 +50,8 @@ function dpiFolder(dpiPercent: DpiPercentage): string {
     }
 }
 
-function dpiPath(dpiPercent: DpiPercentage, fileName: string): string {
-    const name = "output/drawable"
+function dpiPath(dpiPercent: DpiPercentage, fileName: string, dirChild: string): string {
+    const name = "output-" + dirChild +  "/drawable"
     switch (dpiPercent) {
         case DpiPercentage.LDPI: return name + "-ldpi/" + fileName
         case DpiPercentage.MDPI: return name + "-mdpi/" + fileName
@@ -59,39 +62,47 @@ function dpiPath(dpiPercent: DpiPercentage, fileName: string): string {
     }
 }
 
-async function createFolder(dpiPercent: DpiPercentage) {
-    const dir = dpiFolder(dpiPercent)
+async function createFolder(dpiPercent: DpiPercentage, dirChild: string) {
+    const dir = dpiFolder(dpiPercent, dirChild)
     const isExist = existsSync(dir)
     if (!isExist) {
         mkdirSync(dir, { recursive: true })
     }
 }
 
+function rename(name: string): string {
+    return name.split('.').join('_').replace(/[\W_]/g, '_').replace("-", "_").toLocaleLowerCase()
+}
+
 function processToConvert(sharp: Sharp, convert: Convert, name: string): [Sharp, string] {
     switch (convert) {
         case Convert.NONE: {
-            return [sharp, name]
+            return [sharp, rename(path.parse(name).name) + path.parse(name).ext]
         }
         case Convert.PNG: {
             sharp.png({
-                quality: 20
+                quality: 90
             })
 
-            const onlyName = path.parse(name).name
+            const onlyName = rename(path.parse(name).name)
             const newName = onlyName + ".png"
             return [sharp, newName]
         }
         case Convert.WEBP: {
             sharp.webp({
-                quality: 20,
+                quality: 90,
                 lossless: true
             })
 
-            const onlyName = path.parse(name).name
+            const onlyName = rename(path.parse(name).name)
             const newName = onlyName + ".webp"
             return [sharp, newName]
         }
     }
+}
+
+function openFolder(dir: string) {
+    exec('open ' + dir)
 }
 
 export class ApiImpl implements Api {
@@ -104,18 +115,35 @@ export class ApiImpl implements Api {
         return "haha"
     }
 
-    async simpleDpi(name: string) {
+    async simpleDpi(dirOutput: string, name: string) {
         const meta = await sharp(name).metadata()
-        this.resize(name, DpiPercentage.LDPI, meta.width)
-        this.resize(name, DpiPercentage.MDPI, meta.width)
-        this.resize(name, DpiPercentage.HDPI, meta.width)
-        this.resize(name, DpiPercentage.XDPI, meta.width)
-        this.resize(name, DpiPercentage.XXDPI, meta.width)
-        this.resize(name, DpiPercentage.XXXDPI, meta.width)
+        const dpis = [DpiPercentage.LDPI, DpiPercentage.MDPI, DpiPercentage.HDPI, DpiPercentage.XDPI, DpiPercentage.XXDPI, DpiPercentage.XXXDPI]
+
+        dpis.forEach(dpi => {
+            this.resize(dirOutput, name, dpi, meta.width)
+        })
+
+        await delay(2000)
+        
     }
 
-    private async resize(name: string, dpiPercent: DpiPercentage, width: number) {
-        await createFolder(dpiPercent)
+    async startConvert(name: string[]) {
+        const art = await artTitle()
+        const dirOutput = new Date().getMilliseconds().toString()
+
+        await delay(500)
+        console.log(art)
+        name.forEach(async n => {
+            console.log(chalk.greenBright('> process on: ' + n))
+            await this.simpleDpi(dirOutput, n)
+        })
+
+        
+        openFolder('output-' + dirOutput)
+    }
+
+    private async resize(dir: string, name: string, dpiPercent: DpiPercentage, width: number) {
+        await createFolder(dpiPercent, dir)
         const dpiWidth = percetage(dpiPercent, width)
         const process = sharp(name)
             .resize({ width: dpiWidth })
@@ -124,6 +152,6 @@ export class ApiImpl implements Api {
             })
 
         const [ newSharp, newName ] = processToConvert(process, this.convert, name)
-        newSharp.toFile(dpiPath(dpiPercent, newName))
+        newSharp.toFile(dpiPath(dpiPercent, newName, dir))
     }
 }

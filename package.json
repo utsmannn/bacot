@@ -13,9 +13,14 @@
     "android-dpi": "dist/app.js"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Muhammad Utsman",
+  "license": "Apache-v2",
+  "bugs": {
+    "url": "https://github.com/utsmannn/bacot/issues"
+  },
+  "homepage": "https://github.com/utsmannn/bacot#readme",
   "devDependencies": {
+    "@types/figlet": "^1.5.4",
     "@types/node": "^16.11.7",
     "@types/sharp": "^0.29.3",
     "@types/yargs": "^17.0.5",
@@ -23,7 +28,9 @@
     "typescript": "^4.4.4"
   },
   "dependencies": {
-    "cwebp-bin": "^7.0.1",
-    "sharp": "^0.29.2"
+    "chalk": "^4.1.2",
+    "figlet": "^1.5.2",
+    "sharp": "^0.29.2",
+    "yargs": "^17.2.1"
   }
 }
