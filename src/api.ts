@@ -44,9 +44,9 @@ function dpiFolder(dpiPercent: DpiPercentage, dirChild: string): string {
         case DpiPercentage.LDPI: return name + "-ldpi"
         case DpiPercentage.MDPI: return name + "-mdpi"
         case DpiPercentage.HDPI: return name + "-hdpi"
-        case DpiPercentage.XDPI: return name + "-xdpi"
-        case DpiPercentage.XXDPI: return name + "-xxdpi"
-        case DpiPercentage.XXXDPI: return name + "-xxxdpi"
+        case DpiPercentage.XDPI: return name + "-xhdpi"
+        case DpiPercentage.XXDPI: return name + "-xxhdpi"
+        case DpiPercentage.XXXDPI: return name + "-xxxhdpi"
     }
 }
 
@@ -56,9 +56,9 @@ function dpiPath(dpiPercent: DpiPercentage, fileName: string, dirChild: string):
         case DpiPercentage.LDPI: return name + "-ldpi/" + fileName
         case DpiPercentage.MDPI: return name + "-mdpi/" + fileName
         case DpiPercentage.HDPI: return name + "-hdpi/" + fileName
-        case DpiPercentage.XDPI: return name + "-xdpi/" + fileName
-        case DpiPercentage.XXDPI: return name + "-xxdpi/" + fileName
-        case DpiPercentage.XXXDPI: return name + "-xxxdpi/" + fileName
+        case DpiPercentage.XDPI: return name + "-xhdpi/" + fileName
+        case DpiPercentage.XXDPI: return name + "-xxhdpi/" + fileName
+        case DpiPercentage.XXXDPI: return name + "-xxxhdpi/" + fileName
     }
 }
 
@@ -121,21 +121,19 @@ export class ApiImpl implements Api {
 
         dpis.forEach(dpi => {
             this.resize(dirOutput, name, dpi, meta.width)
-        })
-
-        await delay(2000)
-        
+        }) 
     }
 
     async startConvert(name: string[]) {
         const art = await artTitle()
         const dirOutput = new Date().getMilliseconds().toString()
-
-        await delay(500)
         console.log(art)
+
+        await delay(1000)
         name.forEach(async n => {
             console.log(chalk.greenBright('> process on: ' + n))
             await this.simpleDpi(dirOutput, n)
+            await delay(2000)
         })
 
         
