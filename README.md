@@ -1,3 +1,10 @@
+# DEPRECATED
+
+This project deprecated, please check https://github.com/utsmannn/kartika-sari-putri
+
+---
+
+
 <h1 align="center">
   BACOT
 </h1>
